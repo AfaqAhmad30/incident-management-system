@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <!-- Form to Create Incident -->
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3 mb-4">
+            <h4>Report New Incident</h4>
+            <form action="/api/incidents" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Priority</label>
+                    <select class="form-control" name="priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Assign To</label>
+                    <input type="text" class="form-control" name="assigned_to" placeholder="Engineer Name">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit Incident</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table to Track Incidents -->
+    <div class="col-md-8">
+        <div class="card shadow-sm p-3">
+            <h4>Active Incidents</h4>
+            <table class="table table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inc in incidents %}
+                    <tr>
+                        <td>{{ inc.id }}</td>
+                        <td>{{ inc.title }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if inc.priority == 'High' else 'warning' }}">
+                                {{ inc.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if inc.status == 'Resolved' else 'secondary' }}">
+                                {{ inc.status }}
+                            </span>
+                        </td>
+                        <td>{{ inc.assigned_to }}</td>
+                        <td>
+                            {% if inc.status != 'Resolved' %}
+                            <form action="/api/incidents/{{ inc.id }}/resolve" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success">Resolve</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">Closed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No incidents reported yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
